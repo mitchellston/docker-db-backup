@@ -285,7 +285,7 @@ Encryption occurs after compression and the encrypted filename will have a `.gpg
 | Variable             | Description                             | Default    | `_FILE` |
 | -------------------- | --------------------------------------- | ---------- | ------- |
 | `DEFAULT_PORT`       | Microsoft SQL Port                      | `1433`     | x       |
-| `DEFAULT_MSSQL_MODE` | Backup `DATABASE` or `TRANSACTION` logs | `DATABASE` |
+| `DEFAULT_MSSQL_MODE` | Backup `DATABASE` or `TRANSACTION` logs or `SQLPACKAGE` to backup a dacpac file | `DATABASE` |
 
 ###### MongoDB
 
