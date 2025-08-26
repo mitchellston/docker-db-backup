@@ -559,7 +559,7 @@ Encryption will occur after compression and the resulting filename will have a `
 | Variable          | Description                             | Default    | `_FILE` |
 | ----------------- | --------------------------------------- | ---------- | ------- |
 | `DB01_PORT`       | Microsoft SQL Port                      | `1433`     | x       |
-| `DB01_MSSQL_MODE` | Backup `DATABASE` or `TRANSACTION` logs or `SQLPACKAGE` to backup a dacpac file | `DATABASE` | `DATABASE` |
+| `DB01_MSSQL_MODE` | Backup `DATABASE` or `TRANSACTION` logs or `SQLPACKAGE` to backup a dacpac file | `DATABASE` |
 
 ###### MongoDB
 
