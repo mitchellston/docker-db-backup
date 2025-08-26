@@ -703,7 +703,7 @@ EOF
                         break
                     ;;
                     s )
-                        r_dbtype=mssql
+                        r_dbtype=sqlserver
                         DEFAULT_PORT=${DEFAULT_PORT:-"1433"}
                         break
                     ;;
