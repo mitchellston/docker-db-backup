@@ -19,11 +19,13 @@ LABEL \
 
 ARG \
     AWS_CLI_VERSION=1.44.56 \
+    DOTNET_VERSION=8.0.413 \
     INFLUX1_CLIENT_VERSION=1.8.0 \
     INFLUX2_CLIENT_VERSION=2.7.5 \
     MSODBC_VERSION=18.6.1.1-1 \
     MSSQL_VERSION=18.6.1.1-1 \
     MYSQL_VERSION=mysql-9.7.2 \
+    SQLPACKAGE_VERSION=170.1.61 \
     MYSQL_REPO_URL=https://github.com/mysql/mysql-server
 
 COPY CHANGELOG.md /usr/src/container/CHANGELOG.md
@@ -61,12 +63,20 @@ RUN echo "" && \
                                 && \
     DBBACKUP_RUN_DEPS_ALPINE=" \
                                     bzip2 \
+                                    ca-certificates \
                                     coreutils \
                                     gpg \
                                     gpg-agent \
                                     groff \
+                                    icu-libs \
+                                    krb5-libs \
                                     libarchive \
+                                    libgcc \
+                                    libintl \
+                                    libssl3 \
+                                    libstdc++ \
                                     libtirpc \
+                                    libunwind \
                                     mariadb-client \
                                     mariadb-connector-c \
                                     mongodb-tools \
@@ -90,6 +100,7 @@ RUN echo "" && \
                                     sqlite \
                                     xz \
                                     zip \
+                                    zlib \
                                     zstd \
                                " \
                                && \
@@ -134,7 +145,16 @@ RUN echo "" && \
         curl -sSL -O https://download.microsoft.com/download/9dcab408-e0d4-4571-a81a-5a0951e3445f/msodbcsql18_${MSODBC_VERSION}_${mssql_arch}.apk && \
         curl -sSL -O https://download.microsoft.com/download/b60bb8b6-d398-4819-9950-2e30cf725fb0/mssql-tools18_${MSSQL_VERSION}_${mssql_arch}.apk && \
         echo y | apk add --allow-untrusted msodbcsql18_${MSODBC_VERSION}_${mssql_arch}.apk mssql-tools18_${MSSQL_VERSION}_${mssql_arch}.apk && \
-        rm -f msodbcsql18_${MSODBC_VERSION}_${mssql_arch}.apk mssql-tools18_${MSSQL_VERSION}_${mssql_arch}.apk ; \
+        rm -f msodbcsql18_${MSODBC_VERSION}_${mssql_arch}.apk mssql-tools18_${MSSQL_VERSION}_${mssql_arch}.apk && \
+        curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version ${DOTNET_VERSION} --install-dir /usr/share/dotnet && \
+        /usr/share/dotnet/dotnet tool install Microsoft.SqlPackage --version ${SQLPACKAGE_VERSION} --tool-path /opt/sqlpackage && \
+        rm -rf \
+                /opt/sqlpackage/.store/microsoft.sqlpackage/*/microsoft.sqlpackage/*/*.nupkg \
+                /usr/share/dotnet/packs \
+                /usr/share/dotnet/sdk \
+                /usr/share/dotnet/sdk-manifests \
+                /usr/share/dotnet/shared/Microsoft.AspNetCore.App \
+                /usr/share/dotnet/templates ; \
     else \
         echo >&2 "Detected non x86_64 or ARM64 build variant, skipping MSSQL installation" ; \
     fi; \

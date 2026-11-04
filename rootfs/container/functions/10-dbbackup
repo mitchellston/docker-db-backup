@@ -554,6 +554,31 @@ dbbackup_backup_mssql() {
             dbbackup_post_dbbackup "${backup_job_db_name}"
             dbbackup_cleanup_old_data
         ;;
+        sqlpackage )
+            dbbackup_prepare_dbbackup
+            backup_job_filename_base=mssql_${backup_job_db_name,,}_${backup_job_db_host,,}
+            backup_job_filename_base=$(sed 's/ /-/g' <<< "${backup_job_filename_base}")
+            backup_job_filename=${backup_job_filename_base}_${now}.dacpac
+            dbbackup_pre_dbbackup "${backup_job_db_name}"
+            dbbackup_write_log notice "Dumping MSSQL database: '${backup_job_db_name}'"
+            if var_true "${DEBUG_BACKUP_MSSQL}" ; then dbbackup_debug on; fi
+            silent ${play_fair} /opt/sqlpackage/sqlpackage /Action:Extract /SourceConnectionString:"Data Source=${backup_job_db_host},${backup_job_db_port};Database='${backup_job_db_name}';User Id='${backup_job_db_user}';Password='${backup_job_db_pass}';Encrypt=False;" /p:ExtractApplicationScopedObjectsOnly=false /p:VerifyExtraction=true /p:ExtractAllTableData=true /TargetFile:"${temporary_directory}/${backup_job_filename}"
+            exit_code=$?
+            silent chown "${DBBACKUP_USER}":"${DBBACKUP_GROUP}" "${temporary_directory}/${backup_job_filename}"
+            if var_true "${DEBUG_BACKUP_MSSQL}" ; then dbbackup_debug off; fi
+            backup_job_filename_original=${backup_job_filename}
+            dbbackup_compression
+            dbbackup_pre_dbbackup all
+            dbbackup_run_as_user ${compress_cmd} "${temporary_directory}/${backup_job_filename_original}"
+            dbbackup_check_exit_code backup "${backup_job_filename}"
+            dbbackup_file_encryption
+            dbbackup_timer backup finish
+            dbbackup_generate_checksum
+            dbbackup_move_dbbackup
+            dbbackup_check_exit_code move "${backup_job_filename}"
+            dbbackup_post_dbbackup "${backup_job_db_name}"
+            dbbackup_cleanup_old_data
+        ;;
         trn|transaction )
             dbbackup_prepare_dbbackup
             backup_job_filename=mssql_${backup_job_db_name,,}_${backup_job_db_host,,}_${now}.trn
