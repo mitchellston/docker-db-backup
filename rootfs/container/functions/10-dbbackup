@@ -562,9 +562,8 @@ dbbackup_backup_mssql() {
             dbbackup_pre_dbbackup "${backup_job_db_name}"
             dbbackup_write_log notice "Dumping MSSQL database: '${backup_job_db_name}'"
             if var_true "${DEBUG_BACKUP_MSSQL}" ; then dbbackup_debug on; fi
-            silent ${play_fair} /opt/sqlpackage/sqlpackage /Action:Extract /SourceConnectionString:"Data Source=${backup_job_db_host},${backup_job_db_port};Database='${backup_job_db_name}';User Id='${backup_job_db_user}';Password='${backup_job_db_pass}';Encrypt=False;" /p:ExtractApplicationScopedObjectsOnly=false /p:VerifyExtraction=true /p:ExtractAllTableData=true /TargetFile:"${temporary_directory}/${backup_job_filename}"
+            silent dbbackup_run_as_user ${play_fair} /opt/sqlpackage/sqlpackage /Action:Extract /SourceConnectionString:"Data Source=${backup_job_db_host},${backup_job_db_port};Database='${backup_job_db_name}';User Id='${backup_job_db_user}';Password='${backup_job_db_pass}';Encrypt=False;" /p:ExtractApplicationScopedObjectsOnly=false /p:VerifyExtraction=true /p:ExtractAllTableData=true /TargetFile:"${temporary_directory}/${backup_job_filename}"
             exit_code=$?
-            silent chown "${DBBACKUP_USER}":"${DBBACKUP_GROUP}" "${temporary_directory}/${backup_job_filename}"
             if var_true "${DEBUG_BACKUP_MSSQL}" ; then dbbackup_debug off; fi
             backup_job_filename_original=${backup_job_filename}
             dbbackup_compression
